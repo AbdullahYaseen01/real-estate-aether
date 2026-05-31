@@ -86,11 +86,20 @@ export function Hero({ ready = true }: HeroProps) {
         )}
       </div>
 
-      {/* 3D shoe — bigger canvas, sits below headline */}
+      {/* 3D shoe — premium canvas with effects */}
       <div
         ref={shoeRef}
-        className="relative z-10 mx-auto mt-2 h-[min(52vh,560px)] w-full max-w-6xl sm:mt-3 md:mt-4 md:h-[min(58vh,640px)]"
+        className="relative z-10 mx-auto mt-2 h-[min(54vh,580px)] w-full max-w-6xl sm:mt-3 md:mt-4 md:h-[min(60vh,660px)]"
       >
+        {/* Animated accent lines */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+          <div className="absolute left-1/2 top-1/2 h-[55%] w-[55%] -translate-x-1/2 -translate-y-1/2">
+            <div className="hero-ring h-full w-full rounded-full border border-accent/10" />
+          </div>
+          <div className="absolute left-1/2 top-1/2 h-[68%] w-[68%] -translate-x-1/2 -translate-y-1/2">
+            <div className="hero-ring-delay h-full w-full rounded-full border border-accent/5" />
+          </div>
+        </div>
         {ready && <HeroScene />}
       </div>
 

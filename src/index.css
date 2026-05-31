@@ -89,3 +89,23 @@ body {
 [data-cursor='view'] {
   cursor: none;
 }
+
+@keyframes hero-ring-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.hero-ring {
+  animation: hero-ring-spin 18s linear infinite;
+}
+
+.hero-ring-delay {
+  animation: hero-ring-spin 28s linear infinite reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-ring,
+  .hero-ring-delay {
+    animation: none;
+  }
+}

@@ -1,13 +1,9 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import {
-  ContactShadows,
-  OrbitControls,
-  useGLTF,
-} from '@react-three/drei'
+import { ContactShadows, OrbitControls, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
-import { StylizedSneaker } from './SneakerModel'
 import { StudioLights } from './StudioLights'
+import { HeroShoeGroup } from './HeroEffects'
 
 const ACCENT = '#ceff00'
 
@@ -53,16 +49,8 @@ function LoadedShoe({
     if (!group || !tilt) return
 
     group.rotation.y += delta * 0.2
-    group.rotation.x = THREE.MathUtils.lerp(
-      group.rotation.x,
-      tilt.y * 0.12,
-      0.08,
-    )
-    group.rotation.z = THREE.MathUtils.lerp(
-      group.rotation.z,
-      -tilt.x * 0.08,
-      0.08,
-    )
+    group.rotation.x = THREE.MathUtils.lerp(group.rotation.x, tilt.y * 0.12, 0.08)
+    group.rotation.z = THREE.MathUtils.lerp(group.rotation.z, -tilt.x * 0.08, 0.08)
   })
 
   return (
@@ -81,31 +69,27 @@ function ShoeWithFallback({
 }) {
   if (modelPath) {
     return (
-      <Suspense
-        fallback={
-          <StylizedSneaker mouseTiltRef={mouseTiltRef} accentColor={ACCENT} />
-        }
-      >
+      <Suspense fallback={<HeroShoeGroup mouseTiltRef={mouseTiltRef} />}>
         <LoadedShoe path={modelPath} mouseTiltRef={mouseTiltRef} />
       </Suspense>
     )
   }
 
-  return (
-    <StylizedSneaker mouseTiltRef={mouseTiltRef} accentColor={ACCENT} scale={1.45} />
-  )
+  return <HeroShoeGroup mouseTiltRef={mouseTiltRef} />
 }
 
-function RimLight() {
-  return (
-    <spotLight
-      position={[-4, 2, -3]}
-      angle={0.4}
-      penumbra={1}
-      intensity={2.5}
-      color={ACCENT}
-    />
-  )
+function CameraParallax({ mouseTiltRef }: { mouseTiltRef: MouseTiltRef }) {
+  const { camera } = useThree()
+
+  useFrame(() => {
+    const tilt = mouseTiltRef.current
+    if (!tilt) return
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, tilt.x * 0.12, 0.05)
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, 0.35 + tilt.y * 0.08, 0.05)
+    camera.lookAt(0, 0, 0)
+  })
+
+  return null
 }
 
 function SceneContent({
@@ -127,13 +111,13 @@ function SceneContent({
   return (
     <>
       <StudioLights accent={ACCENT} />
-      <RimLight />
+      <CameraParallax mouseTiltRef={mouseTiltRef} />
       <ShoeWithFallback mouseTiltRef={mouseTiltRef} modelPath={modelPath} />
       <ContactShadows
-        position={[0, -0.72, 0]}
-        opacity={0.6}
-        scale={10}
-        blur={2.5}
+        position={[0, -0.85, 0]}
+        opacity={0.65}
+        scale={12}
+        blur={2.8}
         far={4}
       />
       {enableOrbit && (
@@ -171,6 +155,14 @@ export function HeroScene({ modelPath = null }: HeroSceneProps) {
 
   return (
     <div className="absolute inset-0 z-10" data-cursor="drag">
+      {/* CSS glow behind canvas */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60"
+        style={{
+          background:
+            'radial-gradient(circle, rgba(206,255,0,0.12) 0%, rgba(206,255,0,0.04) 40%, transparent 70%)',
+        }}
+      />
       <Canvas
         shadows
         dpr={[1, 1.25]}
